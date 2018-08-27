@@ -206,4 +206,81 @@ class Config
 			return array();
 		}
 	}
+
+	/**
+	 * @return array()
+	 */
+	public function getOptionsDependencies()
+	{
+		$options = array();
+		if ($optionsArray = $this->configArray["config"]["#"]["options"])
+		{
+			foreach ($optionsArray[0]["#"]["dependency"] as $dependencyItem)
+			{
+				$option = array(
+					'name' => $dependencyItem["#"],
+					'module' => '',
+					'entity' => ''
+				);
+				if ($dependencyItem['@'] && $dependencyItem['@']['module'])
+				{
+					$option['module'] = $dependencyItem['@']['module'];
+					$option['entity'] = $dependencyItem['@']['entity'];
+				}
+				$options[] = $option;
+			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * @param $module
+	 * @param $name
+	 * @return bool|array
+	 */
+	public static function getDependency($module, $name)
+	{
+		$arDependencies = static::getInstance()->getOptionsDependencies();
+		if (!empty($arDependencies))
+		{
+			foreach ($arDependencies as $arDependency)
+			{
+				if ($arDependency['module'] == $module && $arDependency['name'] == $name) {
+					return $arDependency;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param $entityName
+	 * @param $module
+	 * @return BaseData|null
+	 */
+	public function getDataClass($entityName, $module)
+	{
+		foreach ($this->configArray["config"]["#"]["module"] as $moduleArray)
+		{
+			if ($module == $moduleArray["#"]["name"][0]["#"])
+			{
+				foreach ($moduleArray["#"]["entity"] as $entityArray)
+				{
+					if ($entityName == $entityArray["#"]["name"][0]["#"])
+					{
+						if ($entity = DataList::get($module, $entityName))
+						{
+							if (Loader::includeModule($entity->getModule()))
+							{
+								return $entity;
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 }

@@ -100,8 +100,14 @@ class ExportOptionCommand extends BaseCommand
 			{
 				if (Config::getInstance()->isOptionIncluded($moduleId, $name))
 				{
+					$arDependency = Config::getInstance()->getDependency($moduleId, $name);
 					foreach ($sameOptions as $siteId => $option)
 					{
+						if($option['VALUE'] && $arDependency)
+						{
+							$option['VALUE'] = static::getDependencyXmlValue($option, $arDependency);
+						}
+
 						if ($option['NAME'])
 						{
 							$siteId = $option['SITE_ID'];
@@ -116,7 +122,24 @@ class ExportOptionCommand extends BaseCommand
 				ksort($options[$moduleId]);
 			}
 		}
-
 		return $options;
+	}
+
+	/**
+	 * @param $option
+	 * @param $dependency
+	 * @return string
+	 */
+	protected static function getDependencyXmlValue($option, $dependency)
+	{
+		if ($entity = Config::getInstance()->getDataClass($dependency['module'], $dependency['entity']))
+		{
+			$value = $entity::getInstance()->getXmlId(RecordId::createStringId($option["VALUE"]));
+			if ($value)
+			{
+				return $value;
+			}
+		}
+		return $option['VALUE'];
 	}
 }

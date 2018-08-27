@@ -73,6 +73,11 @@ class ImportOptionCommand extends BaseCommand
 	 */
 	protected function importOption($module, array $option)
 	{
+		$arDependency = Config::getInstance()->getDependency($module, $option['NAME']);
+		if ($arDependency) {
+			$option['VALUE'] = static::getDependencyValue($option, $arDependency);
+		}
+
 		Option::set($module, $option['NAME'], $option['VALUE'], $option['SITE_ID']);
 		$this->logger->addDb(
 			array(
@@ -86,5 +91,26 @@ class ImportOptionCommand extends BaseCommand
 			),
 			Logger::TYPE_OK
 		);
+	}
+
+	/**
+	 * @param $option
+	 * @param $dependency
+	 * @return string
+	 */
+	protected static function getDependencyValue($option, $dependency)
+	{
+		if ($entity = Config::getInstance()->getDataClass($dependency['module'], $dependency['entity']))
+		{
+			/**
+			 * @var RecordId $record
+			 */
+			$record = $entity::getInstance()->findRecord($option["VALUE"]);
+			if ($record)
+			{
+				return $record->getValue();
+			}
+		}
+		return $option['VALUE'];
 	}
 }
