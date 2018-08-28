@@ -220,12 +220,14 @@ class Config
 				$option = array(
 					'name' => $dependencyItem["#"],
 					'module' => '',
-					'entity' => ''
+					'entity' => '',
+					'entityModule' => ''
 				);
 				if ($dependencyItem['@'] && $dependencyItem['@']['module'])
 				{
 					$option['module'] = $dependencyItem['@']['module'];
 					$option['entity'] = $dependencyItem['@']['entity'];
+					$option['entityModule'] = $dependencyItem['@']['entityModule'];
 				}
 				$options[] = $option;
 			}

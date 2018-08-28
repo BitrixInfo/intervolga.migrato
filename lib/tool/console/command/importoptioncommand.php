@@ -4,6 +4,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\IO\Directory;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\SystemException;
 use Intervolga\Migrato\Data\RecordId;
 use Intervolga\Migrato\Tool\Config;
 use Intervolga\Migrato\Tool\Console\Logger;
@@ -97,10 +98,11 @@ class ImportOptionCommand extends BaseCommand
 	 * @param $option
 	 * @param $dependency
 	 * @return string
+	 * @throws SystemException
 	 */
 	protected static function getDependencyValue($option, $dependency)
 	{
-		if ($entity = Config::getInstance()->getDataClass($dependency['module'], $dependency['entity']))
+		if ($entity = Config::getInstance()->getDataClass($dependency['entityModule'], $dependency['entity']))
 		{
 			/**
 			 * @var RecordId $record
@@ -110,7 +112,11 @@ class ImportOptionCommand extends BaseCommand
 			{
 				return $record->getValue();
 			}
+			else
+			{
+				throw new SystemException(str_replace('#OPTION#', $option['NAME'], Loc::getMessage('INTERVOLGA_MIGRATO.IMPORT_OPTION_DEPENDENCY_NO_FOUND')));
+			}
 		}
-		return $option['VALUE'];
+		throw new SystemException(str_replace(array('#ENTITY#', '#OPTION#'), array($dependency['entity'], $option['NAME']), Loc::getMessage('INTERVOLGA_MIGRATO.OPTION_DEPENDENCY_ENTITY_ERROR')));
 	}
 }
