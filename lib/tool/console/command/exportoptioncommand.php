@@ -104,19 +104,38 @@ class ExportOptionCommand extends BaseCommand
 					$arDependency = Config::getInstance()->getDependency($moduleId, $name);
 					foreach ($sameOptions as $siteId => $option)
 					{
-						if($option['VALUE'] && $arDependency)
+						try
 						{
-							$option['VALUE'] = static::getDependencyXmlValue($option, $arDependency);
-						}
-
-						if ($option['NAME'])
-						{
-							$siteId = $option['SITE_ID'];
-							if ($option['SITE_ID'] == static::NO_SITE)
+							if($option['VALUE'] && $arDependency)
 							{
-								unset($option['SITE_ID']);
+								$option['VALUE'] = static::getDependencyXmlValue($option, $arDependency);
 							}
-							$options[$moduleId][$option['NAME'] . '.' . $siteId] = $option;
+
+							if ($option['NAME'])
+							{
+								$siteId = $option['SITE_ID'];
+								if ($option['SITE_ID'] == static::NO_SITE)
+								{
+									unset($option['SITE_ID']);
+								}
+								$options[$moduleId][$option['NAME'] . '.' . $siteId] = $option;
+							}
+						}
+						catch (\Exception $exception)
+						{
+							$this->logger->addDb(
+								array(
+									'MODULE_NAME' => $moduleId,
+									'ENTITY_NAME' => 'option',
+									'ID' => RecordId::createComplexId(array(
+										'SITE_ID' => $siteId,
+										'NAME' => $option['NAME'],
+									)),
+									"EXCEPTION" => $exception,
+									'OPERATION' => Loc::getMessage('INTERVOLGA_MIGRATO.EXPORT_OPTION'),
+								),
+								Logger::TYPE_FAIL
+							);
 						}
 					}
 				}
@@ -143,9 +162,9 @@ class ExportOptionCommand extends BaseCommand
 			}
 			else
 			{
-				throw new SystemException(str_replace('#OPTION#', $option['NAME'], Loc::getMessage('INTERVOLGA_MIGRATO.EXPORT_OPTION_DEPENDENCY_NO_FOUND')));
+				throw new \Exception(str_replace('#OPTION#', $option['NAME'], Loc::getMessage('INTERVOLGA_MIGRATO.EXPORT_OPTION_DEPENDENCY_NO_FOUND')));
 			}
 		}
-		throw new SystemException(str_replace(array('#ENTITY#', '#OPTION#'), array($dependency['entity'], $option['NAME']), Loc::getMessage('INTERVOLGA_MIGRATO.OPTION_DEPENDENCY_ENTITY_ERROR')));
+		throw new \Exception(str_replace(array('#ENTITY#', '#OPTION#'), array($dependency['entity'], $option['NAME']), Loc::getMessage('INTERVOLGA_MIGRATO.OPTION_DEPENDENCY_ENTITY_ERROR')));
 	}
 }

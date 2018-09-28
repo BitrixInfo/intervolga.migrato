@@ -63,7 +63,26 @@ class ImportOptionCommand extends BaseCommand
 		{
 			if (Config::getInstance()->isOptionIncluded($module, $option['NAME']))
 			{
-				$this->importOption($module, $option);
+				try
+				{
+					$this->importOption($module, $option);
+				}
+				catch (\Exception $exception)
+				{
+					$this->logger->addDb(
+						array(
+							'MODULE_NAME' => $module,
+							'ENTITY_NAME' => 'option',
+							'ID' => RecordId::createComplexId(array(
+								'SITE_ID' => $option['SITE_ID'],
+								'NAME' => $option['NAME'],
+							)),
+							"EXCEPTION" => $exception,
+							'OPERATION' => Loc::getMessage('INTERVOLGA_MIGRATO.IMPORT_OPTION'),
+						),
+						Logger::TYPE_FAIL
+					);
+				}
 			}
 		}
 	}
@@ -114,9 +133,9 @@ class ImportOptionCommand extends BaseCommand
 			}
 			else
 			{
-				throw new SystemException(str_replace('#OPTION#', $option['NAME'], Loc::getMessage('INTERVOLGA_MIGRATO.IMPORT_OPTION_DEPENDENCY_NO_FOUND')));
+				throw new \Exception(str_replace('#OPTION#', $option['NAME'], Loc::getMessage('INTERVOLGA_MIGRATO.IMPORT_OPTION_DEPENDENCY_NO_FOUND')));
 			}
 		}
-		throw new SystemException(str_replace(array('#ENTITY#', '#OPTION#'), array($dependency['entity'], $option['NAME']), Loc::getMessage('INTERVOLGA_MIGRATO.OPTION_DEPENDENCY_ENTITY_ERROR')));
+		throw new \Exception(str_replace(array('#ENTITY#', '#OPTION#'), array($dependency['entity'], $option['NAME']), Loc::getMessage('INTERVOLGA_MIGRATO.OPTION_DEPENDENCY_ENTITY_ERROR')));
 	}
 }
