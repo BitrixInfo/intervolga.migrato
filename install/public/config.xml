@@ -69,7 +69,7 @@
         <exclude module="storeassist">num_orders</exclude>
         <exclude module="subscribe">default_from</exclude>
         <exclude module="subscribe">default_to</exclude>
-        <exclude module="catalog">1CE_IBLOCK_ID</exclude>
+        <dependency module="catalog" entityModule="iblock" entity="iblock">1CE_IBLOCK_ID</dependency>
         <exclude module="landing">blocks_attrs_update\d+</exclude>
         <exclude module="calendar">rm_iblock_id</exclude>
         <exclude module="crm">crm_uf_history</exclude>
