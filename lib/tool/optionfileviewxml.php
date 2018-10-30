@@ -23,7 +23,12 @@ class OptionFileViewXml
 				'value' => $option['VALUE'],
 				'site' => $option['SITE_ID'],
 			);
-			$content .= XmlHelper::tagMap('option', $map, 1);
+			$optionXml = XmlHelper::tagMap('option', $map, 1);
+			if ($option['DEPENDENCY'])
+			{
+				$optionXml = XmlHelper::addAttrToTags('option', array('dependency' => $option['DEPENDENCY']), $optionXml);
+			}
+			$content .= $optionXml;
 		}
 		$content .= '</options>';
 

@@ -109,6 +109,7 @@ class ExportOptionCommand extends BaseCommand
 							if($option['VALUE'] && $arDependency)
 							{
 								$option['VALUE'] = static::getDependencyXmlValue($option, $arDependency);
+								$option['DEPENDENCY'] = $arDependency['entityModule'] . ':' . $arDependency['entity'];
 							}
 
 							if ($option['NAME'])
