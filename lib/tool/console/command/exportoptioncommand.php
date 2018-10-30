@@ -147,10 +147,10 @@ class ExportOptionCommand extends BaseCommand
 	}
 
 	/**
-	 * @param $option
-	 * @param $dependency
+	 * @param array $option
+	 * @param array $dependency
 	 * @return string
-	 * @throws SystemException
+	 * @throws \Exception
 	 */
 	protected static function getDependencyXmlValue($option, $dependency)
 	{
